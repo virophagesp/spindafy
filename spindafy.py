@@ -90,7 +90,7 @@ class SpindaConfig:
         result = self.render_pattern(only_pattern=True, crop=True).convert("RGB")
         diff = ImageChops.difference(target, result)
         total_diff = 0
-        for n, (r, g, b) in diff.getcolors():  # gives a list of counter and RGB values in the image
+        for n, (r, g, b) in diff.getcolors(diff.size[0]*diff.size[1]):  # gives a list of counter and RGB values in the image
             total_diff += n*((r+g+b)/3)
         return total_diff
 
