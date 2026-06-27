@@ -9,7 +9,7 @@ except NotImplementedError:
     cpus = 2   # arbitrary default
 
 # this is definitely not the best way of doing this!
-def to_spindas(filename, pop, n_generations, invert = False):
+def to_spindas(filename, pop, n_generations, pool, invert = False):
     with Image.open(filename) as target:
         target = target.convert("RGB")
         if invert: target = PIL.ImageOps.invert(target)
@@ -22,7 +22,6 @@ def to_spindas(filename, pop, n_generations, invert = False):
         img = Image.new("RGBA", (39 + num_x * 25, 44 + num_y * 20))
         pids = []
 
-        pool = multiprocessing.Pool(processes=cpus)
         for y in range(num_y):
             pids += [[]]
             for x in range(num_x):
@@ -44,7 +43,8 @@ def to_spindas(filename, pop, n_generations, invert = False):
         return (img, pids)
     
 if __name__ == "__main__":
-    (img, pids) = to_spindas("doom/test.png", 100, 10)
+    pool = multiprocessing.Pool(processes=cpus)
+    (img, pids) = to_spindas("doom/test.png", 100, 10, pool)
     img.resize((img.size[0]*10, img.size[1]*10), Image.Resampling.NEAREST).show()
     img.save("doom/test_res.png")
     with open("doom/test.json", "w") as f:
