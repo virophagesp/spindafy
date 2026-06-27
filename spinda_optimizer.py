@@ -40,8 +40,7 @@ def generate_parents(pop_fitness):
 def get_pop_fitness(spinda, target):
     return (spinda, spinda.get_difference(target))
 
-def evolve_step(target, population):
-    pool = multiprocessing.Pool(processes=cpus)
+def evolve_step(target, population, pool):
     pop_fitness = pool.starmap(get_pop_fitness, zip(population, repeat(target)))
     #pop_fitness = starmap(get_pop_fitness, zip(population, repeat(target)))
     pop_fitness = sorted(pop_fitness, key=lambda t: t[1])
@@ -74,8 +73,9 @@ def evolve(target, pop, n_generations, include = []):
     best_fitness, best_spinda = (None, None)
 
     # run evolution
+    pool = multiprocessing.Pool(processes=cpus)
     for gen in range(n_generations):
-        (population, best_fitness, best_spinda) = evolve_step(target, population)
+        (population, best_fitness, best_spinda) = evolve_step(target, population, pool)
         print(f"Generation #{gen} // best: {hex(best_spinda.get_personality())} ({best_fitness})")
     
     return (best_fitness, best_spinda)
