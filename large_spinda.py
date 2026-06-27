@@ -1,6 +1,12 @@
 from PIL import Image
 from spinda_optimizer import evolve
 import json, PIL.ImageOps
+import multiprocessing
+
+try:
+    cpus = multiprocessing.cpu_count()
+except NotImplementedError:
+    cpus = 2   # arbitrary default
 
 # this is definitely not the best way of doing this!
 def to_spindas(filename, pop, n_generations, invert = False):
@@ -16,6 +22,7 @@ def to_spindas(filename, pop, n_generations, invert = False):
         img = Image.new("RGBA", (39 + num_x * 25, 44 + num_y * 20))
         pids = []
 
+        pool = multiprocessing.Pool(processes=cpus)
         for y in range(num_y):
             pids += [[]]
             for x in range(num_x):
@@ -25,7 +32,7 @@ def to_spindas(filename, pop, n_generations, invert = False):
                     x*25+35,
                     y*20+33
                 ))
-                (_, best_spinda) = evolve(sub_target, pop, n_generations)
+                (_, best_spinda) = evolve(sub_target, pop, n_generations, pool)
                 spinmage = best_spinda.render_pattern()
                 img.paste(
                     spinmage,

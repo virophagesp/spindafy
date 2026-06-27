@@ -53,7 +53,7 @@ def evolve_step(target, population, pool):
         new_pop.append(create_offspring(parent_1, parent_2))
     return (new_pop, best_fitness, best_spinda)
 
-def evolve(target, pop, n_generations, include = []):
+def evolve(target, pop, n_generations, pool, include = []):
     # check for predefined spinda patterns!
     black_target = [127, 127, 127, 255] if target.mode == "RBGA" else 127
     if np.all(np.greater_equal(target, 128)):
@@ -73,7 +73,6 @@ def evolve(target, pop, n_generations, include = []):
     best_fitness, best_spinda = (None, None)
 
     # run evolution
-    pool = multiprocessing.Pool(processes=cpus)
     for gen in range(n_generations):
         (population, best_fitness, best_spinda) = evolve_step(target, population, pool)
         print(f"Generation #{gen} // best: {hex(best_spinda.get_personality())} ({best_fitness})")
@@ -82,7 +81,8 @@ def evolve(target, pop, n_generations, include = []):
 
 def render_to_spinda(filename, pop, n_generations, include = []) -> Image:
     with Image.open(filename) as target:
-        (_, best_spinda) = evolve(target.convert("RGB"), pop, n_generations)
+        pool = multiprocessing.Pool(processes=cpus)
+        (_, best_spinda) = evolve(target.convert("RGB"), pop, n_generations, pool)
         return (best_spinda.render_pattern(), best_spinda)
 
 if __name__ == "__main__":
